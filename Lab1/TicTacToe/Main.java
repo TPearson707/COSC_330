@@ -37,12 +37,17 @@ public class Main {
                 System.out.println("That spot is taken!");
                 continue;
             }
+
+            if (game.checkDraw()) {
+                System.out.println("The game is a draw!");
+                break;
+            }
         } 
 
-        System.out.println("Congratulations " + letter + ", you won!");
+        if (game.checkWin()) {
+            System.out.println("Congratulations " + letter + ", you won!");
+        }
 
         stdin.close();
-
-        return;
     }
 }

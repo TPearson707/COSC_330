@@ -42,6 +42,20 @@ public class TicTacToe {
         return false;
     }
 
+    public boolean checkDraw() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == '-') {
+                    // Found an empty spot, not a draw
+                    return false; 
+                }
+            }
+        }
+
+        // No empty spots and no winner means it's a draw
+        return true;
+    }
+
     public boolean setBoard(char letter, int x, int y) {
         if (board[x][y] == '-') {
             board[x][y] = letter;
