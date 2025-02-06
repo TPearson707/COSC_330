@@ -5,11 +5,12 @@ public class TicTacToe {
     private char[][] board;
     private int rows = 3;
     private int columns = 3;
+    private char letter = 'x';
 
     // private constructor to prevent instantiation
     private TicTacToe() {
         board = new char[3][3];
-        
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 board[i][j] = '-';
@@ -45,7 +46,7 @@ public class TicTacToe {
         // Check the first diagonal for a win
         if (board[0][0] != '-' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
             return true;
-        } 
+        }
 
         // Check the second diagonal for a win
         if (board[0][2] != '-' && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
@@ -61,7 +62,7 @@ public class TicTacToe {
             for (int j = 0; j < rows; j++) {
                 if (board[i][j] == '-') {
                     // Found an empty spot, not a draw
-                    return false; 
+                    return false;
                 }
             }
         }
@@ -70,14 +71,22 @@ public class TicTacToe {
         return true;
     }
 
-    public boolean setBoard(char letter, int x, int y) {
+    public boolean setBoard(int x, int y) {
         if (board[x][y] == '-') {
             board[x][y] = letter;
             return true;
-        } 
-        
+        }
+
         return false;
-        
+
+    }
+
+    public void setLetter(char l) {
+        letter = l;
+    }
+
+    public char getLetter() {
+        return letter;
     }
 
     public String stringifyBoard() {
