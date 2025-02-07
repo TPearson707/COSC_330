@@ -10,11 +10,13 @@ import java.net.Socket;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.KeyStroke;
 
 public class Client extends JFrame {
    private JTextField enterField; // enters information from user
@@ -44,6 +46,21 @@ public class Client extends JFrame {
       ); // end call to addActionListener
 
       add(enterField, BorderLayout.NORTH);
+
+      JTextField inputField = new JTextField(); // create inputField
+      inputField.setEditable(true);
+
+      // Key binding for the Enter key
+      inputField.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "submitAction");
+      inputField.getActionMap().put("submitAction", new AbstractAction() {
+         public void actionPerformed(ActionEvent event) {
+            // Handle the event when Enter is pressed
+            System.out.println("Enter key pressed, submitting: " + inputField.getText());
+            // You can process the coordinates here
+            sendData(inputField.getText());
+            inputField.setText("");
+         }
+      });
 
       displayArea = new JTextArea(); // create displayArea
       add(new JScrollPane(displayArea), BorderLayout.CENTER);

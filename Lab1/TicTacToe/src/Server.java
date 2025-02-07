@@ -51,6 +51,7 @@ public class Server extends JFrame {
 
       add(enterField, BorderLayout.NORTH);
 
+
       displayArea = new JTextArea(); // create displayArea
       add(new JScrollPane(displayArea), BorderLayout.CENTER);
 
