@@ -6,16 +6,19 @@ public class ClientTest
 {
    public static void main( String args[] )
    {
-      Client application; // declare client application
+      // Client application; // declare client application
 
-      // if no command line args
-      if ( args.length == 0 )
-         application = new Client( "127.0.0.1" ); // connect to localhost
-      else
-         application = new Client( args[ 0 ] ); // use args to connect
+      // // if no command line args
+      // if ( args.length == 0 )
+      //    application = new Client( "127.0.0.1" ); // connect to localhost
+      // else
+      //    application = new Client( args[ 0 ] ); // use args to connect
 
-      application.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-      application.runClient(); // run client application
+      // application.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+      // application.runClient(); // run client application
+
+      TicTacToeView view = new TicTacToeView(TicTacToe.getInstance());
+
    } // end main
 } // end class ClientTest
 
