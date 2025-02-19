@@ -129,7 +129,7 @@ public class Server extends JFrame {
             sendData("\n" + message);
 
             // send the current player's turn to the client
-            message = "It's player " + game.getLetter() + "'s turn!";
+            message = "It's player " + game.getPlayer() + "'s turn!";
             sendData(message);
 
             message = (String) input.readObject(); // read new message
@@ -143,7 +143,7 @@ public class Server extends JFrame {
 
             // check win or draw condition
             if (game.checkWin()) {
-               message = "Player " + game.getLetter() + " wins!\n";
+               message = "Player " + game.getPlayer() + " wins!\n";
                sendData(message);
                message = "CLIENT>>> TERMINATE";
             } else if (game.checkDraw()) {
@@ -154,9 +154,9 @@ public class Server extends JFrame {
 
             // change the letter
             if (turnCounter % 2 == 0) {
-               game.setLetter('x');
+               game.setPlayer('x');
             } else {
-               game.setLetter('o');
+               game.setPlayer('o');
             }
 
             turnCounter++;
@@ -192,7 +192,7 @@ public class Server extends JFrame {
       coordinates.clear(); // clear the vector for the next turn
 
       // update the board
-      if (game.setBoard(x - 1, y - 1))
+      if (game.makeMove(x - 1, y - 1))
          return true;
 
       return false;

@@ -1,16 +1,24 @@
+import java.util.ArrayList;
+
 public class TicTacToe {
 
     // private static instance of the same class
     private static TicTacToe instance = null;
     private char[][] board;
-    private int rows = 3;
-    private int columns = 3;
-    private char letter = 'x';
+    private int rows;
+    private int columns;
+    private char currentPlayer;
+    private final ArrayList<Observer> observers;
 
     // private constructor to prevent instantiation
     private TicTacToe() {
-        board = new char[3][3];
+        rows = 3;
+        columns = 3;
+        currentPlayer = 'x';
+        board = new char[rows][columns];
+        observers = new ArrayList<>();
 
+        // Initialize the board
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 board[i][j] = '-';
@@ -27,6 +35,87 @@ public class TicTacToe {
         return instance;
     }
 
+    /* OBSERVERS IMPLMENTATION */
+
+    // Add observer method (like addObserver in Observable)
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    // Notify observers of a move
+    private void notifyObservers(int row, int col, char player) {
+        for (Observer observer : observers) {
+            observer.update(row, col, player);
+        }
+    }
+
+    /* END OBSERVERS IMPLMENTATION  */
+
+    /* SETTERS */
+
+    // function to update board
+    public boolean makeMove(int x, int y) {
+        if (board[x][y] == '-') {
+            board[x][y] = currentPlayer;
+
+            // Notify observers with current Player and position to update view
+            notifyObservers(x, y, currentPlayer);
+
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public void switchPlayer() {
+        currentPlayer = (currentPlayer == 'x') ? 'o' : 'x';
+    }
+
+    // Function to set the current currentPlayer
+    public void setPlayer(char l) {
+        currentPlayer = l;
+    }
+
+    // Function to set the rows
+    public void setRows(int r) {
+        rows = r;
+    }
+
+    // Function to set the columns
+    public void setColumns(int c) {
+        columns = c;
+    }
+
+    /* END SETTERS */
+
+    /* GETTERS */
+
+    // Function to get the current board
+    public char[][] getBoard() {
+        return board;
+    }
+
+    // Function to get the current currentPlayer
+    public char getPlayer() {
+        return currentPlayer;
+    }
+
+    // Function to get the rows
+    public int getRows() {
+        return rows;
+    }
+
+    // Function to get the rows
+    public int getColumns() {
+        return columns;
+    }
+
+    /* END GETTERS */
+
+    /* GAME LOGIC */
+
+    // Function to check if the game has been won
     public boolean checkWin() {
 
         // Check rows for a win
@@ -57,6 +146,7 @@ public class TicTacToe {
         return false;
     }
 
+    // Function to check if the game resulted in a draw
     public boolean checkDraw() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < rows; j++) {
@@ -71,24 +161,11 @@ public class TicTacToe {
         return true;
     }
 
-    public boolean setBoard(int x, int y) {
-        if (board[x][y] == '-') {
-            board[x][y] = letter;
-            return true;
-        }
+    /* END GAME LOGIC */
 
-        return false;
+    /* UTILITY FUNCTIONS FOR TERMINAL USE */
 
-    }
-
-    public void setLetter(char l) {
-        letter = l;
-    }
-
-    public char getLetter() {
-        return letter;
-    }
-
+    // Function to return the current board as a string for terminal use
     public String stringifyBoard() {
         String str = "";
 
@@ -102,6 +179,7 @@ public class TicTacToe {
         return str;
     }
 
+    // Function to print out the board
     public void printBoard() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -110,4 +188,6 @@ public class TicTacToe {
             System.out.println();
         }
     }
-}
+
+    /* END UTILITY FUNCTIONS FOR TERMINAL USE */
+} // End class TicTacToe
