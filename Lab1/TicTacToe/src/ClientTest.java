@@ -1,11 +1,11 @@
 // Fig. 24.8: ClientTest.java
 // Test the Client class.
-import javax.swing.JFrame;
 
 public class ClientTest 
 {
    public static void main( String args[] )
    {
+
       // Client application; // declare client application
 
       // // if no command line args
@@ -17,9 +17,14 @@ public class ClientTest
       // application.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
       // application.runClient(); // run client application
 
-      TicTacToeView view = new TicTacToeView(TicTacToe.getInstance());
+      TicTacToe game = TicTacToe.getInstance();
+      TicTacToeController controller = new TicTacToeController(null, game);
+      TicTacToeView view = new TicTacToeView(game);
+      controller.setView(view);
 
    } // end main
+
+
 } // end class ClientTest
 
 /**************************************************************************

@@ -21,8 +21,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import java.util.Vector;
-
 public class Server extends JFrame {
    private JTextField enterField; // inputs message from user
    private JTextArea displayArea; // display information to user
@@ -31,7 +29,6 @@ public class Server extends JFrame {
    private ServerSocket server; // server socket
    private Socket connection; // connection to client
    private int counter = 1; // counter of number of connections
-   private TicTacToe game = TicTacToe.getInstance();
 
    // set up GUI
    public Server() {
@@ -113,8 +110,6 @@ public class Server extends JFrame {
       // enable enterField so server user can send messages
       setTextFieldEditable(true);
 
-      int turnCounter = 1;
-
       // Send welcome message to the client
       message = "Welcome to Tic-Tac-Toe!";
       sendData(message + "\n");
@@ -124,42 +119,8 @@ public class Server extends JFrame {
          try // read message and display it
          {
 
-            // Send board to the client
-            message = game.stringifyBoard();
-            sendData("\n" + message);
-
-            // send the current player's turn to the client
-            message = "It's player " + game.getPlayer() + "'s turn!";
-            sendData(message);
-
-            message = (String) input.readObject(); // read new message
-            displayArea.setText(message);
-
-            // update the board
-            if (!updateBoard(message)) {
-               sendData("\n" + game.stringifyBoard());
-               continue;
-            }
-
-            // check win or draw condition
-            if (game.checkWin()) {
-               message = "Player " + game.getPlayer() + " wins!\n";
-               sendData(message);
-               message = "CLIENT>>> TERMINATE";
-            } else if (game.checkDraw()) {
-               message = "The game is a draw!";
-               sendData(message);
-               message = "CLIENT>>> TERMINATE";
-            }
-
-            // change the letter
-            if (turnCounter % 2 == 0) {
-               game.setPlayer('x');
-            } else {
-               game.setPlayer('o');
-            }
-
-            turnCounter++;
+            message = ( String ) input.readObject(); // read new message
+            displayMessage( "\n" + message ); // display message
 
          } // end try
          catch (ClassNotFoundException classNotFoundException) {
@@ -168,35 +129,6 @@ public class Server extends JFrame {
 
       } while (!message.equals("CLIENT>>> TERMINATE"));
    } // end method processConnection
-
-   private boolean updateBoard(String message) {
-      Vector<Integer> coordinates = new Vector<>();
-
-      for (int i = 0; i < message.length(); i++) {
-         char currentLetter = message.charAt(i);
-         if (Character.isDigit(currentLetter)) { // if current letter is a digit
-            int digitToAdd = Character.getNumericValue(currentLetter);
-
-            if (digitToAdd > 0 && digitToAdd <= 3) {
-               coordinates.add(Character.getNumericValue(currentLetter)); // add the digit to the vector
-            } else {
-               return false;
-            }
-         }
-      }
-
-      // fetch the coordinates from the vector
-      int x = coordinates.get(0);
-      int y = coordinates.get(1);
-
-      coordinates.clear(); // clear the vector for the next turn
-
-      // update the board
-      if (game.makeMove(x - 1, y - 1))
-         return true;
-
-      return false;
-   }
 
    // close streams and socket
    private void closeConnection() {

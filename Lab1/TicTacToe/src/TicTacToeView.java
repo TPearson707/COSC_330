@@ -1,5 +1,3 @@
-// TicTacToeView.java - View Component
-
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -17,6 +15,7 @@ class TicTacToeView extends JFrame {
     private JTextPane textPane;
     private JButton[][] buttons = new JButton[3][3];
     private Font customFont = new Font("Segoe UI", Font.BOLD, 30); // Initial font
+    private TicTacToeController controller;  // Reference to the controller
 
     // Constructor for the view
     TicTacToeView(TicTacToe model) {
@@ -28,9 +27,7 @@ class TicTacToeView extends JFrame {
         // set up logic here
         game = model;
         game.setPlayer(INITIAL_VALUE);
-
-
-
+        this.controller = new TicTacToeController(this, game);  // Pass the controller to the view
 
         // set up panel
         panel = new JPanel();
@@ -56,7 +53,7 @@ class TicTacToeView extends JFrame {
         StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
-        textPane.setText("Welcome to Tic Tac Toe!");
+        updateTextPane("Welcome to Tic Tac Toe!");
 
         // Set preferred size for the JTextPane
         textPane.setPreferredSize(new Dimension(0, 50)); // Width: 0 (ignored), Height: 50 pixels
@@ -75,17 +72,13 @@ class TicTacToeView extends JFrame {
         // Initialize buttons
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-                TicTacToeButton button = new TicTacToeButton(row, col, game); // Create button with coordinates
-                button.setForeground(Color.WHITE); // White text color 
-                button.setBackground(new Color(0x3A4C6B)); // Soft blue-gray 
-                button.setOpaque(true); // Make sure background color is visible
-                button.setBorderPainted(false); // Remove button borders clean look
-                button.setPreferredSize(new Dimension(50, 50)); // Set fixed preferred size
-                buttons[row][col] = button; // add button to buttons array
-                button.setEnabled(false); // Disable button initially
-
-                // Add action listener to button
-                button.addActionListener(new ButtonActionListener());
+                buttons[row][col] = new TicTacToeButton(row, col); // Create buttons[row][col] with coordinates
+                buttons[row][col].setForeground(Color.WHITE); // White text color 
+                buttons[row][col].setBackground(new Color(0x3A4C6B)); // Soft blue-gray 
+                buttons[row][col].setOpaque(true); // Make sure background color is visible
+                buttons[row][col].setBorderPainted(false); // Remove buttons[row][col] borders clean look
+                buttons[row][col].setPreferredSize(new Dimension(50, 50)); // Set fixed preferred size
+                buttons[row][col].setEnabled(true); // Disable buttons[row][col] initially
 
                 // Set grid position
                 gbc.gridx = col;
@@ -94,7 +87,9 @@ class TicTacToeView extends JFrame {
             }
         }
 
-        // Dynamically set button font size
+        controller.addActionListenersToButton(buttons); // Add action listeners to buttons
+
+        // Dynamically set buttons[row][col] font size
         setButtonFontSize(BUTTON_SIZE);
 
         // Add panel to frame
@@ -116,34 +111,27 @@ class TicTacToeView extends JFrame {
         timer.start(); // Start the timer
     }
 
-    public class ButtonActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() instanceof TicTacToeButton) {
-                TicTacToeButton button = (TicTacToeButton) e.getSource();
-                int row = button.getRow();
-                int col = button.getCol();
-                char currentPlayer = game.getPlayer();
+    // Method to update the text displayed in the JTextPane
+    public void updateTextPane(String text) {
+        textPane.setText(text);  // Update the text displayed in the JTextPane
+    }
 
-                // Make move
-                if (game.makeMove(row, col)) {
-                    
-                    if (game.checkWin()) {
-                        textPane.setText("Player " + currentPlayer + " wins!");
-                        setButtonsEditable(false);
-                    } else if (game.checkDraw()) {
-                        textPane.setText("The game is a draw!");
-                        setButtonsEditable(false);
-                    } else {
-                        textPane.setText("Player " + game.getPlayer() + "'s turn"); // get the next player
-                    }
-                }
+    // Method to update the text displayed on a button
+    public void updateButtonText(int row, int col, char text) {
+        buttons[row][col].setText(Character.toString(text));  // Update the text displayed on the button
+    }
+
+    public void addButtonListener(ActionListener listener) {
+        // This method is now for adding the listener in the controller
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                buttons[row][col].addActionListener(listener);  // Register listeners for buttons
             }
         }
     }
 
-    // Method to dynamically change button font size
-    private void setButtonFontSize(int newSize) {
+    // Method to dynamically change buttons[row][col] font size
+    public void setButtonFontSize(int newSize) {
         customFont = new Font("Segoe UI", Font.BOLD, newSize); // Update the font with the new size
         
         // Apply the new font size to all buttons
@@ -157,13 +145,13 @@ class TicTacToeView extends JFrame {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 buttons[row][col].revalidate(); // Revalidate layout
-                buttons[row][col].repaint(); // Repaint the button
+                buttons[row][col].repaint(); // Repaint the buttons[row][col]
             }
         }
     }
 
-    // method to set a button to be editable or not
-    private void setButtonsEditable(boolean editable) {
+    // method to set a all buttons editable or not
+    public void setButtonsEditable(boolean editable) {
 
         if (game == null) {
             return;
@@ -174,7 +162,10 @@ class TicTacToeView extends JFrame {
                 buttons[i][j].setEnabled(editable);
             }
         }
+    }
 
-        
+    // method to set a specific button[row][col] to be editable or not
+    public void setButtonEditable(int row, int col, boolean editable) {
+        buttons[row][col].setEnabled(editable);
     }
 };

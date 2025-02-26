@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class TicTacToe {
 
     // private static instance of the same class
@@ -8,7 +6,6 @@ public class TicTacToe {
     private int rows;
     private int columns;
     private char currentPlayer;
-    private final ArrayList<Observer> observers;
 
     // private constructor to prevent instantiation
     private TicTacToe() {
@@ -16,7 +13,6 @@ public class TicTacToe {
         columns = 3;
         currentPlayer = 'x';
         board = new char[rows][columns];
-        observers = new ArrayList<>();
 
         // Initialize the board
         for (int i = 0; i < 3; i++) {
@@ -35,31 +31,12 @@ public class TicTacToe {
         return instance;
     }
 
-    /* OBSERVERS IMPLMENTATION */
-
-    // Add observer method (like addObserver in Observable)
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-    }
-
-    // Notify observers of a move
-    private void notifyObservers(int row, int col, char player) {
-        for (Observer observer : observers) {
-            observer.update(row, col, player);
-        }
-    }
-
-    /* END OBSERVERS IMPLMENTATION  */
-
     /* SETTERS */
 
     // function to update board
     public boolean makeMove(int x, int y) {
         if (board[x][y] == '-') {
             board[x][y] = currentPlayer;
-
-            // Notify observers with current Player and position to update view
-            notifyObservers(x, y, currentPlayer);
 
             return true;
         }
