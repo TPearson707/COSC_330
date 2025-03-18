@@ -1,0 +1,16 @@
+Testing, buttons don't work btw. However the functions they are supposed to call do work
+When I go to do the networking with multiple players, I will need to display the players Ocean grid and their opponents Ocean grid as their target grid.
+Ships shouldn't be visible on "target grid"
+This implmentation *should* reduce overhead and unnessary memory use
+Next step is to make the buttons works properly, and try to sink player one's carrier as player 2
+
+03/09/2025
+- Target grid buttons now work properly. 
+- Background music and sound effects are now implemented.
+- Automatic ship placement is now implemented.
+- fetch ships from each players board and display them on their ocean grids (green for now)
+Next Steps
+- Find a way to implement the provided drag and drop system
+- Implement the P2P networking provided by instructor
+- Implement syncing the game state between players
+
