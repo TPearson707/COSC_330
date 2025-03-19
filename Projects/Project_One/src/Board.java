@@ -171,7 +171,7 @@ public class Board {
             Ship ship = ships.get(gridValue);
             if (ship != null) {
                 ship.markHit();
-                grid[x][y] = "X"; // Mark as hit on the grid with 'X' instead of '~'
+                grid[x][y] = "~";
                 boolean sunk = ship.isSunk();
                 return new AttackResult(true, sunk, ship.getName());
             }
