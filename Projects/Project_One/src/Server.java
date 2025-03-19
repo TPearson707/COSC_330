@@ -60,7 +60,7 @@ public class Server extends JFrame {
     private void processConnection() throws IOException {
         String message = "Connection successful";
         sendData(message);
-
+  
         do {
             try {
                 message = (String) input.readObject();
@@ -85,47 +85,68 @@ public class Server extends JFrame {
 
                 if (message.startsWith("ATTACK ")) {
                     try {
+                        // Check if game is already over before processing
+                        if (model.isGameOver()) {
+                            System.out.println("Ignoring attack as game is already over");
+                            return;
+                        }
+                
                         String[] parts = message.split(" ");
                         if (parts.length != 3) {
                             System.err.println("Invalid ATTACK message: " + message);
                             return;
                         }
-
+                
                         int x = Integer.parseInt(parts[1]);
                         int y = Integer.parseInt(parts[2]);
-
+                
+                        // Perform the attack and get the result
                         AttackResult result = model.performAttack(1, x, y);
+                        
+                        // IMPORTANT: Check game over state AFTER the attack is processed
                         boolean gameOver = model.isGameOver();
-
+                
+                        // Immediately handle game over condition first
                         if (gameOver) {
-                            // Send GAME_OVER message to client
+                            // Update UI first to show the final attack result
+                            SwingUtilities.invokeLater(() -> {
+                                frame.getOceanPanel().updateOcean(x, y, result.isHit());
+                                // If player 1's ships are sunk, player 2 (client) wins
+                                if (model.getPlayer(0).getBoard().allShipsSunk()) {
+                                    updateMessage("Game Over! Client wins!");
+                                } else {
+                                    // If player 2's ships are sunk, player 1 (server) wins
+                                    updateMessage("Game Over! You Win!");
+                                }
+                                frame.getTargetPanel().setTargetButtonsEnabled(false);
+                            });
+                            
+                            // Send GAME_OVER message to client after updating UI
                             sendData("GAME_OVER SERVER");
                         } else {
-                            // Send ATTACK_RESULT message to client
+                            // If game is not over, send attack result
                             String resultMsg = String.format("ATTACK_RESULT %d %d %s %b",
-                                    x, y, result.serialize(), gameOver);
+                                x, y, result.serialize(), gameOver);
                             sendData(resultMsg);
-                        }
-
-                        SwingUtilities.invokeLater(() -> {
-                            frame.getOceanPanel().updateOcean(x, y, result.isHit());
-
-                            if (result.isHit()) {
-                                updateMessage("Opponent hit your ship at (" + x + ", " + y + ")!");
-                            } else {
-                                updateMessage("Opponent missed at (" + x + ", " + y + ").");
-                            }
-                            if (result.isSunk()) {
-                                updateMessage(result.toString());
-                            }
-                            if (gameOver) {
-                                updateMessage("Game Over! You Win!");
-                                frame.getTargetPanel().setTargetButtonsEnabled(false);
-                            } else {
-                                // Send TURN message to client
+                            
+                            // Update UI in a separate thread
+                            SwingUtilities.invokeLater(() -> {
+                                frame.getOceanPanel().updateOcean(x, y, result.isHit());
+                                
+                                if (result.isHit()) {
+                                    updateMessage("Opponent hit your ship at (" + x + ", " + y + ")!");
+                                } else {
+                                    updateMessage("Opponent missed at (" + x + ", " + y + ").");
+                                }
+                                
+                                if (result.isSunk()) {
+                                    updateMessage("Opponent " + result.toString());
+                                }
+                                
+                                // Send TURN message only if game is not over
                                 sendData("TURN SERVER");
-                            }
-                        });
+                            });
+                        }
                     } catch (Exception e) {
                         System.err.println("Error processing attack: " + e.getMessage());
                         e.printStackTrace();
@@ -136,21 +157,29 @@ public class Server extends JFrame {
                     int y = Integer.parseInt(parts[2]);
                     AttackResult result = AttackResult.deserialize(parts[3]);
                     boolean gameOver = Boolean.parseBoolean(parts[4]);
-
+                    
                     SwingUtilities.invokeLater(() -> {
                         model.getPlayer(1).getBoard().attackCell(x, y);
                         frame.getTargetPanel().updateResult(x, y, result);
-
+                        
                         if (result.isHit()) {
                             updateMessage("You hit a ship at (" + x + ", " + y + ")!");
                         } else {
                             updateMessage("You missed at (" + x + ", " + y + ").");
                         }
+                        
                         if (result.isSunk()) {
                             updateMessage(result.toString());
                         }
+                        
                         if (gameOver) {
-                            updateMessage("Game Over! You lose!");
+                            // If player 2's ships are sunk, player 1 (server) wins
+                            if (model.getPlayer(1).getBoard().allShipsSunk()) {
+                                updateMessage("Game Over! You Win!");
+                            } else {
+                                // If player 1's ships are sunk, player 2 (client) wins
+                                updateMessage("Game Over! Client wins!");
+                            }
                             frame.getTargetPanel().setTargetButtonsEnabled(false);
                         } else {
                             // Send TURN message to client
@@ -160,7 +189,12 @@ public class Server extends JFrame {
                 } else if (message.startsWith("GAME_OVER ")) {
                     String winner = message.split(" ")[1];
                     SwingUtilities.invokeLater(() -> {
-                        updateMessage("Game Over! " + winner + " wins!");
+                        // If the message says CLIENT wins, it means the client is reporting they won
+                        if (winner.equals("CLIENT")) {
+                            updateMessage("Game Over! Server wins!");
+                        } else {
+                            updateMessage("Game Over! You Win!");
+                        }
                         frame.getTargetPanel().setTargetButtonsEnabled(false);
                     });
                 } else if (message.startsWith("TURN ")) {
@@ -169,11 +203,6 @@ public class Server extends JFrame {
 
                     SwingUtilities.invokeLater(() -> {
                         frame.getTargetPanel().setTargetButtonsEnabled(isMyTurn);
-                        if (isMyTurn) {
-                            updateMessage("Your turn!");
-                        } else {
-                            updateMessage("Opponent's turn...");
-                        }
                     });
                 }
             } catch (ClassNotFoundException | IOException e) {

@@ -146,16 +146,23 @@ public class Model {
     // Check if all ships are sunk
     private boolean checkGameOver() {
 
-        if (players[0].getBoard().allShipsSunk()) { // check if player ones ships are sunk
+        System.out.println("Checking if game is over...");
+    
+        boolean player1ShipsSunk = players[0].getBoard().allShipsSunk();
+        boolean player2ShipsSunk = players[1].getBoard().allShipsSunk();
+        
+        System.out.println("Player 1 ships all sunk: " + player1ShipsSunk);
+        System.out.println("Player 2 ships all sunk: " + player2ShipsSunk);
+        
+        if (player1ShipsSunk) {
             System.out.println("All of player 1 ships were sunk, player 2 wins!");
             return true;
-        } else if (players[1].getBoard().allShipsSunk()) { // check if player twos ships are sunk
+        } else if (player2ShipsSunk) {
             System.out.println("All of player 2 ships were sunk, player 1 wins!");
             return true;
         }
-
+        
         return false;
-
     }
 
     // Add ships to a player's board

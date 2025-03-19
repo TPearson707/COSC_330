@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map;
 
 public class Board {
 
@@ -165,11 +166,12 @@ public class Board {
 
     public AttackResult attackCell(int x, int y) {
         String gridValue = grid[x][y];
-        if (!gridValue.equals("~")) { // If it's not water, it's a hit
+        if (!gridValue.equals("~")) {
+            // If it's not water, it's a hit
             Ship ship = ships.get(gridValue);
             if (ship != null) {
                 ship.markHit();
-                grid[x][y] = "~"; // Mark as hit on the grid
+                grid[x][y] = "X"; // Mark as hit on the grid with 'X' instead of '~'
                 boolean sunk = ship.isSunk();
                 return new AttackResult(true, sunk, ship.getName());
             }
@@ -178,11 +180,23 @@ public class Board {
     }
 
     public boolean allShipsSunk() {
-        for (Ship ship : ships.values()) {
-            if (!(ship.isSunk())) {
+        System.out.println("Checking if all ships are sunk...");
+        
+        for (Map.Entry<String, Ship> entry : ships.entrySet()) {
+            String shipName = entry.getKey();
+            Ship ship = entry.getValue();
+            boolean isSunk = ship.isSunk();
+            
+            System.out.println("Ship: " + shipName + ", Length: " + ship.getLength() + 
+                              ", Hits: " + ship.getHitCount() + ", Sunk: " + isSunk);
+            
+            if (!isSunk) {
+                System.out.println("Not all ships are sunk.");
                 return false;
             }
         }
+        
+        System.out.println("All ships are sunk!");
         return true;
     }
 
@@ -208,13 +222,6 @@ public class Board {
         }
     }
 
-    /**
-     * Checks if a ship is located at the specified grid coordinates.
-     *
-     * @param row The row index (0-based).
-     * @param col The column index (0-based).
-     * @return True if a ship is present, false otherwise.
-     */
     public boolean isShipAt(int row, int col) {
         // Validate bounds
         if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLUMNS) {
@@ -225,13 +232,6 @@ public class Board {
         return !grid[row][col].equals("~");
     }
 
-    /**
-     * Retrieves the name of the ship located at the specified grid coordinates.
-     *
-     * @param row The row index (0-based).
-     * @param col The column index (0-based).
-     * @return The name of the ship, or null if no ship is present.
-     */
     public String getShipNameAt(int row, int col) {
         // Validate bounds
         if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLUMNS) {
@@ -243,12 +243,6 @@ public class Board {
         return cellValue.equals("~") ? null : cellValue;
     }
 
-    /**
-     * Checks if a specific ship is sunk.
-     *
-     * @param shipName The name of the ship to check.
-     * @return True if the ship is sunk, false otherwise.
-     */
     public boolean isShipSunk(String shipName) {
         // Check if the ship exists in the HashMap
         if (ships.containsKey(shipName)) {

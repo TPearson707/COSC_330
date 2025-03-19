@@ -22,12 +22,12 @@ public class Player {
             System.err.println("Opponent or their board is null.");
             return null;
         }
-    
+        
         Board opponentBoard = opponent.getBoard();
-        boolean hit = opponentBoard.isShipAt(row, col);
-        String shipName = hit ? opponentBoard.getShipNameAt(row, col) : null;
-        boolean sunk = hit && opponentBoard.isShipSunk(shipName);
-    
-        return new AttackResult(hit, sunk, shipName);
+        
+        // Use attackCell to update the board and get the result
+        AttackResult result = opponentBoard.attackCell(row, col);
+        
+        return result;
     }
 }
