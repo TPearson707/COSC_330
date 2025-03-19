@@ -108,21 +108,22 @@ public class Server extends JFrame {
                 
                         // Immediately handle game over condition first
                         if (gameOver) {
-                            // Update UI first to show the final attack result
                             SwingUtilities.invokeLater(() -> {
                                 frame.getOceanPanel().updateOcean(x, y, result.isHit());
-                                // If player 1's ships are sunk, player 2 (client) wins
-                                if (model.getPlayer(0).getBoard().allShipsSunk()) {
-                                    updateMessage("Game Over! Client wins!");
+                                if (model.getPlayer(1).getBoard().allShipsSunk()) {
+                                    updateMessage("Game Over! You Win!"); // Server wins
                                 } else {
-                                    // If player 2's ships are sunk, player 1 (server) wins
-                                    updateMessage("Game Over! You Win!");
+                                    updateMessage("Game Over! Client Wins !"); // Client wins
                                 }
                                 frame.getTargetPanel().setTargetButtonsEnabled(false);
                             });
                             
-                            // Send GAME_OVER message to client after updating UI
-                            sendData("GAME_OVER SERVER");
+                            // Determine which player won and send correct message
+                            if (model.getPlayer(1).getBoard().allShipsSunk()) {
+                                sendData("GAME_OVER SERVER");
+                            } else {
+                                sendData("GAME_OVER CLIENT");
+                            }
                         } else {
                             // If game is not over, send attack result
                             String resultMsg = String.format("ATTACK_RESULT %d %d %s %b",
@@ -189,9 +190,8 @@ public class Server extends JFrame {
                 } else if (message.startsWith("GAME_OVER ")) {
                     String winner = message.split(" ")[1];
                     SwingUtilities.invokeLater(() -> {
-                        // If the message says CLIENT wins, it means the client is reporting they won
                         if (winner.equals("CLIENT")) {
-                            updateMessage("Game Over! Server wins!");
+                            updateMessage("Game Over! Client wins!");
                         } else {
                             updateMessage("Game Over! You Win!");
                         }

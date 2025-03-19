@@ -107,6 +107,8 @@ public class Controller implements ActionListener {
 
 
         if (button.getText().equals("Random Placement")) { // Check if it’s the correct button
+            audio.setSound("assets/sounds/game_start.wav");
+            audio.playSound(false);
             System.out.println("Adding ships to the ocean randomly...");
             model.setRandomPlacement(true);
             model.startGame();
@@ -115,12 +117,12 @@ public class Controller implements ActionListener {
                     try {
                         System.out.println("Hosting game - initiating board exchange");
                 
-                        // 1. Generate and send server's board first
+                        // Generate and send server's board first
                         model.setRandomPlacement(true);
                         addShipsToOceanGrid(attacker);
                         server.sendServerBoard(attacker.getBoard().getGrid());
                 
-                        // 2. Wait for client's board
+                        // Wait for client's board
                     
                             try {
                                 int attempts = 0;
@@ -152,7 +154,7 @@ public class Controller implements ActionListener {
                 System.out.println("Joining game - awaiting board exchange");
                
                     try {
-                        // 1. Wait for server's board
+                        // Wait for server's board
                         int attempts = 0;
                         while (attempts < 10 && client.getServerBoard() == null) {
                             Thread.sleep(500); // Wait for server's board
@@ -161,7 +163,7 @@ public class Controller implements ActionListener {
             
                         if (client.getServerBoard() != null) {
                             SwingUtilities.invokeLater(() -> {
-                                // 2. Set server's board and send our board
+                                // Set server's board and send our board
                                 opponent.getBoard().setGrid(client.getServerBoard()); // Set server's board
                                 client.sendClientBoard(attacker.getBoard().getGrid()); // Send client's board
                                 model.startGame();
@@ -192,7 +194,7 @@ public class Controller implements ActionListener {
                 try {
                     System.out.println("Hosting game - initiating board exchange");
         
-                    // 1. Generate and send server's board first
+                    // Generate and send server's board first
                     addShipsToOceanGrid(attacker); // Add manually placed ships to the grid
                     server.sendServerBoard(attacker.getBoard().getGrid()); // Send server's board to client
         

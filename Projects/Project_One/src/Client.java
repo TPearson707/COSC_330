@@ -94,23 +94,24 @@ public class Client extends JFrame {
                             // IMPORTANT: Check game over state AFTER the attack is processed
                             boolean gameOver = model.isGameOver();
                             // Immediately handle game over condition first
-                            if (gameOver) {
-                                // Update UI first to show the final attack result
+                            if (model.isGameOver()) {
                                 SwingUtilities.invokeLater(() -> {
                                     frame.getOceanPanel().updateOcean(x, y, result.isHit());
-                                    // If player 2's ships are sunk, player 1 (server) wins
                                     if (model.getPlayer(1).getBoard().allShipsSunk()) {
-                                        updateMessage("Game Over! Server wins!");
+                                        updateMessage("Game Over! Server wins"); // Server wins
                                     } else {
-                                        // If player 1's ships are sunk, player 2 (client) wins
-                                        updateMessage("Game Over! You Win!");
+                                        updateMessage("Game Over! You Win!"); // Client wins
                                     }
                                     frame.getTargetPanel().setTargetButtonsEnabled(false);
                                 });
-                                
-                                // Send GAME_OVER message to server after updating UI
-                                sendData("GAME_OVER CLIENT");
-                            } else {
+
+                                // Determine which player won and send correct message
+                                if (model.getPlayer(1).getBoard().allShipsSunk()) {
+                                    sendData("GAME_OVER SERVER");
+                                } else {
+                                    sendData("GAME_OVER CLIENT");
+                                }
+                                } else {
                                 // If game is not over, send attack result
                                 String resultMsg = String.format("ATTACK_RESULT %d %d %s %b",
                                     x, y, result.serialize(), gameOver);
@@ -161,7 +162,7 @@ public class Client extends JFrame {
                                     updateMessage("Game Over! You Win!");
                                 } else {
                                     // If player 2's ships are sunk, player 1 (server) wins
-                                    updateMessage("Game Over! Client wins!");
+                                    updateMessage("Game Over! Server wins!");
                                 }
                                 frame.getTargetPanel().setTargetButtonsEnabled(false);
                             } else {
@@ -172,7 +173,6 @@ public class Client extends JFrame {
                     } else if (message.startsWith("GAME_OVER ")) {
                         String winner = message.split(" ")[1];
                         SwingUtilities.invokeLater(() -> {
-                            // If the message says SERVER wins, it means the server is reporting they won
                             if (winner.equals("SERVER")) {
                                 updateMessage("Game Over! Server wins!");
                             } else {
