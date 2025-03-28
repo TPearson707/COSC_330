@@ -50,7 +50,7 @@ public class Controller implements ActionListener {
                 server.runServer();
             }).start();
         } else { // Client
-            client = new Client("127.0.0.1");
+            client = new Client("10.249.43.75");
             client.setModel(model); // Pass the model to the client
             client.setFrame(frame);
             // Set the initial player
